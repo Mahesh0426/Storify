@@ -1,3 +1,5 @@
+//  This file defines the database structure for our Droply application.
+//   We're using Drizzle ORM with PostgreSQL (via Neon) for our database.
 import {
   integer,
   pgTable,
@@ -46,6 +48,6 @@ export const filesRelations = relations(files, ({ one, many }) => ({
   children: many(files),
 }));
 
-// Type Inference defination
+// Type Inference defination - These types help with TypeScript integration
 export const File = typeof files.$inferSelect;
 export const NewFile = typeof files.$inferInsert;
