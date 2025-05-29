@@ -20,7 +20,7 @@ import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import Link from "next/link";
 
-const SignInForm = () => {
+const SignUpForm = () => {
   const router = useRouter();
   //states
   const [verifying, setVerifying] = useState(false);
@@ -325,4 +325,4 @@ const SignInForm = () => {
   );
 };
 
-export default SignInForm;
+export default SignUpForm;
