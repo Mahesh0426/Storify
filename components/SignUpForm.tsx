@@ -57,20 +57,27 @@ const SignUpForm = () => {
     setAuthError(null);
 
     try {
-      await signUp.create({
+      const result = await signUp.create({
         emailAddress: data.email,
         password: data.password,
       });
-      await signUp.prepareEmailAddressVerification({
-        strategy: "email_code",
-      });
 
-      setVerifying(true);
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        router.push("/dashboard");
+      } else {
+        await signUp.prepareEmailAddressVerification({
+          strategy: "email_code",
+        });
+        setVerifying(true);
+      }
     } catch (error: any) {
       console.error("Error creating user:", error);
       setAuthError(
-        error.errors?.[0]?.message || " An error occurred please try again."
+        error.errors?.[0]?.message || "An error occurred please try again."
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

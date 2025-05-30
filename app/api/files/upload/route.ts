@@ -55,5 +55,60 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-  } catch (error) {}
+
+    // Only allow image uploads
+    if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+      return NextResponse.json(
+        { error: "Only image files are supported" },
+        { status: 400 }
+      );
+    }
+
+    //convert file to buffer
+    const buffer = await file.arrayBuffer();
+    const fileBuffer = Buffer.from(buffer);
+
+    // Create folder path based on parent folder if exists
+    const folderPath = parentId
+      ? `/storify/${userId}/folders/${parentId}`
+      : `/storify/${userId}`;
+
+    // Generate a unique filename
+    const originalFilename = file.name;
+    const fileExtension = originalFilename.split(".").pop() || "";
+    const uniqueFilename = `${uuidv4()}.${fileExtension}`;
+
+    // Upload file to ImageKit
+    const uploadResponse = await imagekit.upload({
+      file: fileBuffer,
+      fileName: uniqueFilename,
+      folder: folderPath,
+      useUniqueFileName: false,
+    });
+
+    // create file information and  save in  the database
+    const fileData = {
+      name: originalFilename,
+      path: uploadResponse.filePath,
+      size: file.size,
+      type: file.type,
+      fileUrl: uploadResponse.url,
+      thumbnailUrl: uploadResponse.thumbnailUrl || null,
+      userId: userId,
+      parentId: parentId,
+      isFolder: false,
+      isStarred: false,
+      isTrash: false,
+    };
+
+    const [newFile] = await db.insert(files).values(fileData).returning();
+
+    return NextResponse.json(newFile);
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    return NextResponse.json(
+      { error: "Failed to upload file" },
+      { status: 500 }
+    );
+  }
 }

@@ -25,7 +25,7 @@ export const files = pgTable("users", {
   thumbnailUrl: text("thumbnail_url"), // url to access thumbnail
 
   //ownership info
-  userId: uuid("user_id").notNull(), // user who uploaded the file
+  userId: text("user_id").notNull(), // user who uploaded the file
   parentId: uuid("parent_id"), // parent folder id if null for root item
 
   //file/folder flags
@@ -49,5 +49,5 @@ export const filesRelations = relations(files, ({ one, many }) => ({
 }));
 
 // Type Inference defination - These types help with TypeScript integration
-export const File = typeof files.$inferSelect;
-export const NewFile = typeof files.$inferInsert;
+export type File = typeof files.$inferSelect;
+export type NewFile = typeof files.$inferInsert;
